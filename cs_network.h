@@ -6,15 +6,20 @@
 #define MUSIC_SERVER 1
 #define PHOTO_SERVER 2
 
-typedef struct{
-    int servers_sockets[3];
-    int client_socket;
+typedef struct client{
+    int socket;
     socklen_t sockaddr_lenght;
-    struct sockaddr_in client;
-    struct sockaddr_in servers[3];
-}cs_connection;
+    struct sockaddr_in socket_address[3];
+    bool (*init)(struct client*);
+} client;
 
-cs_connection* connection;
+typedef struct server{
+    int socket;
+    socklen_t sockaddr_lenght;
+    struct sockaddr_in socket_address;
+    bool (*init)(struct server*, const char*);
+} server;
 
-bool init(void);
+bool init_server(server* self, const char* host_path);
+bool init_client(client* self);
 bool read_hostfile(const char* path, struct sockaddr_in* connection_data);
