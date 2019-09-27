@@ -11,7 +11,7 @@ void init_db(){
 
     music_db.music_id = 0;
 
-    printf("Banco de Dados de vídeos inicializado.\n");
+    printf("Banco de Dados de músicas inicializado.\n");
 }
 
 music create_music(music_req music_recieved){
