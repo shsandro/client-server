@@ -48,6 +48,8 @@ bool init_client(client* self){
     if(read_hostfile("./hosts/hostfile_server3", &self->socket_address[PHOTO_SERVER]) == false) return false;
 
     printf("Socket CLIENT criado.\n");
+
+    return true;
 }
 
 bool read_hostfile(const char* path, struct sockaddr_in* connection_data){
