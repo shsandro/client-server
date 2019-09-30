@@ -17,14 +17,18 @@ SERVER_VIDEO=$(SERVER)/video_server.c
 SERVER_MUSIC=$(SERVER)/music_server.c
 SERVER_PHOTO=$(SERVER)/photo_server.c
 
+all: client video_server music_server
+
 client:
-	$(CC) $(SRC_CLIENT) $(SRC_NETWORK) $(SRC_VIDEO) -o client.out
+	$(CC) $(SRC_CLIENT) $(SRC_NETWORK) $(SRC_VIDEO) $(SRC_MUSIC) -o client.out
 
 video_server:
-	$(CC) $(SERVER_VIDEO) $(SRC_NETWORK) $(SRC_VIDEO) $(SRC_MUSIC) -o video_server.out
+	$(CC) $(SERVER_VIDEO) $(SRC_NETWORK) $(SRC_VIDEO) -o video_server.out
 
 music_server:
-	$(CC) $(SERVER_MUSIC) $(SRC_NETWORK) $(SRC_MUSIC) $(SRC_VIDEO) -o music_server.out
+	$(CC) $(SERVER_MUSIC) $(SRC_NETWORK) $(SRC_MUSIC) -o music_server.out
 
 photo_server:
 	$(CC) $(SERVER_PHOTO) $(SRC_NETWORK) -o photo_server.out
+
+.PHONY: client

@@ -31,11 +31,11 @@ typedef struct{
 typedef struct{
     music musics[MAX];
     auto_id music_id;
-}data_base;
+}music_data_base;
 
-data_base music_db;
+music_data_base music_db;
 
-void init_db();
+void init_music_db();
 music create_music(music_req music_recieved);
 music get_music(int id);
 

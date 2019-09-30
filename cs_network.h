@@ -1,3 +1,6 @@
+#ifndef CS_NETWORK_H
+#define CS_NETWORK_H
+
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <netinet/in.h> 
@@ -23,3 +26,5 @@ typedef struct server{
 bool init_server(server* self, const char* host_path);
 bool init_client(client* self);
 bool read_hostfile(const char* path, struct sockaddr_in* connection_data);
+
+#endif

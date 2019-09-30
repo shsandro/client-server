@@ -11,7 +11,7 @@ int main(int argc, const char** argv){
     int pipe_fd[2];
     pid_t pid;
 
-    init_db();
+    init_video_db();
 
     cs_server.init = init_server;
 
@@ -24,7 +24,7 @@ int main(int argc, const char** argv){
         perror("Falha ao criar pipe.\n");
     }
 
-    write(pipe_fd[1], &video_db, sizeof(data_base));
+    write(pipe_fd[1], &video_db, sizeof(video_data_base));
 
     while((accepted_socket = accept(cs_server.socket, (struct sockaddr *)&cs_server.socket_address, &cs_server.sockaddr_lenght)) > 0){
         pid = fork();
@@ -33,7 +33,7 @@ int main(int argc, const char** argv){
             perror("Não foi possivel criar fork.\n");
             return false;
         } else if(pid == 0){
-            read(pipe_fd[0], &video_db, sizeof(data_base));
+            read(pipe_fd[0], &video_db, sizeof(video_data_base));
             printf("Conexão estabelecida.\n");
 
             video_req video_recivied;
@@ -60,7 +60,7 @@ int main(int argc, const char** argv){
                 }
 
                 write(accepted_socket, &video_response, sizeof(video));
-                write(pipe_fd[1], &video_db, sizeof(data_base));
+                write(pipe_fd[1], &video_db, sizeof(video_data_base));
                 exit(EXIT_SUCCESS);
             }else{
                 perror("Leitura da requisição falhou.\n");
