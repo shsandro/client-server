@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void init_db(){
+void init_music_db(){
     for(int i = 0; i < MAX; ++i){
         music_db.musics[i].id = -1;
     }
@@ -21,6 +21,7 @@ music create_music(music_req music_recieved){
     music_db.musics[music_db.music_id].length = music_recieved.length;
     music_db.musics[music_db.music_id].id = music_db.music_id;
     ++music_db.music_id;
+    printf("ID = %d\n", music_db.music_id);
     return music_db.musics[music_db.music_id-1];
 }
 

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void init_db(){
+void init_video_db(){
     for(int i = 0; i < MAX; ++i){
         video_db.videos[i].id = -1;
     }

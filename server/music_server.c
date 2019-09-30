@@ -6,17 +6,22 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define MUSIC_FIFO "/tmp/music_fifo"
+
 int main(int argc, const char** argv){
     server cs_server;
     int accepted_socket;
     pid_t pid;
-    char* music_fifo = "/temp/music_fifo";
     int fifo_fd;
 
-    remove(music_fifo);
-    mkfifo(music_fifo, 0666);
+    remove(MUSIC_FIFO);
 
-    init_db();
+    if (mkfifo(MUSIC_FIFO, 0666) < 0) {
+        perror("Erro criando FIFO");
+        exit(EXIT_FAILURE);
+    }
+
+    init_music_db();
 
     cs_server.init = init_server;
 
@@ -25,9 +30,9 @@ int main(int argc, const char** argv){
         exit(EXIT_FAILURE);
     }
 
-    fifo_fd = open(music_fifo, O_RDWR | O_TRUNC);
+    fifo_fd = open(MUSIC_FIFO, O_RDWR);
 
-    write(fifo_fd, &music_db, sizeof(data_base));
+    write(fifo_fd, &music_db, sizeof(music_data_base));
 
     while((accepted_socket = accept(cs_server.socket, (struct sockaddr *)&cs_server.socket_address, &cs_server.sockaddr_lenght)) > 0){
         pid = fork();
@@ -38,7 +43,7 @@ int main(int argc, const char** argv){
         } else if(pid == 0){
             printf("Conexão estabelecida.\n");
 
-            read(fifo_fd, &music_db, sizeof(data_base));
+            read(fifo_fd, &music_db, sizeof(music_data_base));
 
             music_req music_recieved;
 
@@ -64,7 +69,7 @@ int main(int argc, const char** argv){
                 }
 
                 write(accepted_socket, &music_response, sizeof(music));
-                write(fifo_fd, &music_db, sizeof(data_base));
+                write(fifo_fd, &music_db, sizeof(music_data_base));
                 exit(EXIT_SUCCESS);
             }else{
                 perror("Leitura da requisição falhou.\n");

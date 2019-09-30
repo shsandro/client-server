@@ -31,11 +31,11 @@ typedef struct{
 typedef struct{
     video videos[MAX];
     auto_id video_id;
-}data_base;
+}video_data_base;
 
-data_base video_db;
+video_data_base video_db;
 
-void init_db();
+void init_video_db();
 video create_video(video_req video_recieved);
 video get_video(int id);
 
