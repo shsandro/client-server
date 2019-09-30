@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <libexplain/connect.h>
 
 int main(int argc, const char** argv){
     client cs_client;
@@ -44,7 +43,7 @@ int main(int argc, const char** argv){
 
         if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address[VIDEO_SERVER], cs_client.sockaddr_lenght) < 0){
             perror("Conexão falhou.\n");
-            printf("%s\n", explain_connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address[VIDEO_SERVER], cs_client.sockaddr_lenght));
+            printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address[VIDEO_SERVER], cs_client.sockaddr_lenght);
             return 0;
         }
 

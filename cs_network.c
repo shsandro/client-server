@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <libexplain/bind.h>
 
 bool init_server(server* self, const char* host_path){
     self->sockaddr_lenght = (socklen_t)sizeof(self->socket_address);
@@ -20,7 +19,7 @@ bool init_server(server* self, const char* host_path){
 
     if(bind(self->socket, (struct sockaddr*)&self->socket_address, self->sockaddr_lenght) < 0){
         perror("Bind SERVER falhou.\n");
-        printf("%s\n", explain_bind(self->socket, (struct sockaddr*)&self->socket_address, self->sockaddr_lenght));
+        printf("%s\n", self->socket, (struct sockaddr*)&self->socket_address, self->sockaddr_lenght);
         return false;
     }
 
