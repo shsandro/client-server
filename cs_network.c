@@ -29,7 +29,6 @@ bool init_server(server* self, const char* host_path){
     }
 
     printf("Servidor escutando na porta %d.\n", htons(self->socket_address.sin_port));
-
     return true;
 }
 

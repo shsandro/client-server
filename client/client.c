@@ -1,6 +1,7 @@
 #include "../cs_network.h"
 #include "../models/include/video.h"
 #include "../models/include/music.h"
+#include "../models/include/photo.h"
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
@@ -143,6 +144,67 @@ int main(int argc, const char** argv){
             printf("\tTamanho     : %.2f\n", music_recivied.length);
             printf("\tID          : %d\n", music_recivied.id);
         }
+        break;
+
+        case PHOTO_SERVER: 
+        {
+            photo_req photo_sent;
+            printf("\nEntre com a requisição:\n[0] GET\n[1] POST\n");
+            scanf("%d", &action);
+
+            switch (action){
+                case POST:
+                    strcpy(photo_sent.title, "A grande ficha");
+                    strcpy(photo_sent.color_model, "RGB");
+                    photo_sent.width = 1024;
+                    photo_sent.heigth = 720;
+                    photo_sent.req = POST;
+                    break;
+
+                case GET:
+                    photo_sent.id = 0;
+                    photo_sent.req = GET;
+                    break;
+            }
+            if ((cs_client.socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
+                perror("\n Socket creation error \n"); 
+                exit(EXIT_FAILURE);
+            }
+
+            if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address[MUSIC_SERVER], cs_client.sockaddr_lenght) < 0){
+                perror("Conexão falhou.\n");
+                printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address[MUSIC_SERVER], cs_client.sockaddr_lenght);
+                return 0;
+            }
+
+            if (send(cs_client.socket, &photo_sent, sizeof(photo_req), 0) == -1) {
+                perror("Error sending message");
+            }else {
+                if(!action){
+                    printf("\n\tMessage sent\n");
+                    printf("\tID: %d\n", photo_sent.id);
+                } else {
+                    printf("\n\tMessage sent\n");
+                    printf("\tTítulo: %s\n", photo_sent.title);
+                    printf("\tModelo de cores: %s\n", photo_sent.color_model);
+                    printf("\tLargura: %d\n", photo_sent.width);
+                    printf("\tAltura: %d\n", photo_sent.heigth);
+                    printf("\tRequisição: %d\n", photo_sent.req);
+                }
+            }
+
+            photo photo_recivied;
+
+            read(cs_client.socket, &photo_recivied, sizeof(photo));
+
+            printf("\n\tObjeto recebido da requisição %d\n", photo_sent.req);
+            printf("\tTítulo        : %s\n", photo_recivied.title);
+            printf("\tModelo de cores      : %s\n", photo_recivied.color_model);
+            printf("\tLargura     : %d\n", photo_recivied.width);
+            printf("\tAltura     : %d\n", photo_recivied.heigth);
+            printf("\tID          : %d\n", photo_recivied.id);
+        }
+        
         break;
         }
 
