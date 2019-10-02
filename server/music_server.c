@@ -74,7 +74,7 @@ int main(int argc, const char** argv){
             }else{
                 perror("Leitura da requisição falhou.\n");
                 write(accepted_socket, "REQ_FAILED", 11);
-                exit(EXIT_SUCCESS);
+                exit(EXIT_FAILURE);
             }
         }
         

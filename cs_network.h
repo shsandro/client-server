@@ -23,8 +23,17 @@ typedef struct server{
     bool (*init)(struct server*, const char*);
 } server;
 
+typedef struct server{
+    int socket;
+    socklen_t sockaddr_lenght;
+    struct sockaddr_in socket_address;
+    struct sockaddr_in socket_server_address[3];
+    bool (*init)(struct server*);
+} proxy;
+
 bool init_server(server* self, const char* host_path);
 bool init_client(client* self);
+bool init_proxy(proxy* self);
 bool read_hostfile(const char* path, struct sockaddr_in* connection_data);
 
 #endif
