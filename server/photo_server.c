@@ -8,6 +8,7 @@
 #include <sys/ipc.h> 
 #include <sys/shm.h> 
 
+const unsigned int db_size = sizeof(photo_data_base);
 
 int main(int argc, const char** argv){
     server cs_server;
@@ -22,7 +23,15 @@ int main(int argc, const char** argv){
         exit(EXIT_FAILURE);
     }
     key_t key = ftok("shmfile",65); 
-    int shmid = shmget(key,1024,0666|IPC_CREAT);
+    if(key < 0 ){
+        perror("Erro no ftok");
+        exit(EXIT_FAILURE);
+    }
+    int shmid = shmget(key, db_size , 0666 | IPC_CREAT);
+    if(shmid < 0){
+        perror("Erro shmid");
+        exit(EXIT_FAILURE);
+    }
     photo_data_base *shared_memory_photo = (photo_data_base*) shmat(shmid,NULL, 0);
 
     memcpy(shared_memory_photo, &photo_db, sizeof(photo_data_base)); //escrevo o do db pra memória compartilhada
@@ -39,7 +48,7 @@ int main(int argc, const char** argv){
             memcpy(&photo_db, shared_memory_photo, sizeof(photo_data_base));  //leio tudo que está na memoria compartilhada pro bd
             
             int v = read(accepted_socket, &photo_recieved, sizeof(photo_req));
-            if(v == 0){
+            if(v >= 0){
                 photo photo_response;
                 switch (photo_recieved.req){
                 case POST:
@@ -59,6 +68,7 @@ int main(int argc, const char** argv){
                     break;
 
                 }
+                write(accepted_socket, &photo_response, sizeof(photo));
             } else {
                 perror("Leitura da requisição falhou.\n");
                 write(accepted_socket, "REQ_FAILED", 11);

@@ -171,9 +171,9 @@ int main(int argc, const char** argv){
                 exit(EXIT_FAILURE);
             }
 
-            if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address[MUSIC_SERVER], cs_client.sockaddr_lenght) < 0){
+            if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address[PHOTO_SERVER], cs_client.sockaddr_lenght) < 0){
                 perror("Conexão falhou.\n");
-                printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address[MUSIC_SERVER], cs_client.sockaddr_lenght);
+                printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address[PHOTO_SERVER], cs_client.sockaddr_lenght);
                 return 0;
             }
 

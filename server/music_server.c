@@ -84,8 +84,6 @@ int main(int argc, const char** argv){
         perror("Requisição falhou.\n");
         return false;
     }
-
     shutdown(cs_server.socket, 2);
-
     return 0;
 }
