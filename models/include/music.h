@@ -15,6 +15,7 @@ typedef struct
     char name[MAX_MUSIC];
     char singer[MAX_MUSIC];
     char gender[MAX_MUSIC];
+    char album[MAX_MUSIC];
     float length;
     int id;
 } music;
@@ -24,6 +25,7 @@ typedef struct
     char name[MAX_MUSIC];
     char singer[MAX_MUSIC];
     char gender[MAX_MUSIC];
+    char album[MAX_MUSIC];
     float length;
     int id;
     req_type req;

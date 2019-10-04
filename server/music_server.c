@@ -66,6 +66,7 @@ int main(int argc, const char **argv)
                     printf("\tNome: %s\n", music_recieved.name);
                     printf("\tCantor: %s\n", music_recieved.singer);
                     printf("\tGênero: %s\n", music_recieved.gender);
+                    printf("\tAlbum: %s\n", music_recieved.album);
                     printf("\tDuração: %.2f\n", music_recieved.length);
                     printf("\tRequisição: %d\n", music_recieved.req);
                     break;

@@ -109,6 +109,7 @@ int main(int argc, const char **argv)
                 strcpy(music_sent.name, "Like a Virgin");
                 strcpy(music_sent.singer, "Madonna");
                 strcpy(music_sent.gender, "Pop");
+                strcpy(music_sent.album, "Dark side of the moon");
                 music_sent.length = 3.0;
                 music_sent.req = POST;
                 break;
@@ -132,7 +133,7 @@ int main(int argc, const char **argv)
                 return 0;
             }
 
-            if (send(cs_client.socket, &music_sent, sizeof(video_req), 0) == -1)
+            if (send(cs_client.socket, &music_sent, sizeof(music_req), 0) == -1)
             {
                 perror("Error sending message");
             }
@@ -149,6 +150,7 @@ int main(int argc, const char **argv)
                     printf("\tNome: %s\n", music_sent.name);
                     printf("\tCantor: %s\n", music_sent.singer);
                     printf("\tGênero: %s\n", music_sent.gender);
+                    printf("\tAlbum: %s\n", music_sent.album);
                     printf("\tDuração: %.2f\n", music_sent.length);
                     printf("\tRequisição: %d\n", music_sent.req);
                 }
@@ -160,8 +162,9 @@ int main(int argc, const char **argv)
 
             printf("\n\tObjeto recebido da requisição %d\n", music_sent.req);
             printf("\tNome        : %s\n", music_recivied.name);
-            printf("\tSinger     : %s\n", music_recivied.singer);
+            printf("\tSinger      : %s\n", music_recivied.singer);
             printf("\tGênero      : %s\n", music_recivied.gender);
+            printf("\tAlbum       :%s\n", music_recivied.album);
             printf("\tTamanho     : %.2f\n", music_recivied.length);
             printf("\tID          : %d\n", music_recivied.id);
         }
@@ -238,8 +241,6 @@ int main(int argc, const char **argv)
         break;
         }
     }
-
-    shutdown(cs_client.socket, 2);
 
     return 0;
 }

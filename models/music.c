@@ -21,6 +21,7 @@ music create_music(music_req music_recieved)
     strcpy(music_db.musics[music_db.music_id].name, music_recieved.name);
     strcpy(music_db.musics[music_db.music_id].singer, music_recieved.singer);
     strcpy(music_db.musics[music_db.music_id].gender, music_recieved.gender);
+    strcpy(music_db.musics[music_db.music_id].album, music_recieved.album);
     music_db.musics[music_db.music_id].length = music_recieved.length;
     music_db.musics[music_db.music_id].id = music_db.music_id;
     ++music_db.music_id;
