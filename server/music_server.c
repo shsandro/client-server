@@ -8,7 +8,8 @@
 
 #define MUSIC_FIFO "/tmp/music_fifo"
 
-int main(int argc, const char** argv){
+int main(int argc, const char **argv)
+{
     server cs_server;
     int accepted_socket;
     pid_t pid;
@@ -16,7 +17,8 @@ int main(int argc, const char** argv){
 
     remove(MUSIC_FIFO);
 
-    if (mkfifo(MUSIC_FIFO, 0666) < 0) {
+    if (mkfifo(MUSIC_FIFO, 0666) < 0)
+    {
         perror("Erro criando FIFO");
         exit(EXIT_FAILURE);
     }
@@ -25,7 +27,8 @@ int main(int argc, const char** argv){
 
     cs_server.init = init_server;
 
-    if(!cs_server.init(&cs_server, "./hosts/hostfile_server2")){
+    if (!cs_server.init(&cs_server, "./hosts/hostfile_server2"))
+    {
         printf("Falha na criação do servidor.\n");
         exit(EXIT_FAILURE);
     }
@@ -34,13 +37,17 @@ int main(int argc, const char** argv){
 
     write(fifo_fd, &music_db, sizeof(music_data_base));
 
-    while((accepted_socket = accept(cs_server.socket, (struct sockaddr *)&cs_server.socket_address, &cs_server.sockaddr_lenght)) > 0){
+    while ((accepted_socket = accept(cs_server.socket, (struct sockaddr *)&cs_server.socket_address, &cs_server.sockaddr_lenght)) > 0)
+    {
         pid = fork();
 
-        if(pid < 0){
+        if (pid < 0)
+        {
             perror("Não foi possivel criar fork.\n");
             return false;
-        } else if(pid == 0){
+        }
+        else if (pid == 0)
+        {
             printf("Conexão estabelecida.\n");
 
             read(fifo_fd, &music_db, sizeof(music_data_base));
@@ -48,9 +55,11 @@ int main(int argc, const char** argv){
             music_req music_recieved;
 
             int v = read(accepted_socket, &music_recieved, sizeof(music_req));
-            if(v >= 0){
+            if (v >= 0)
+            {
                 music music_response;
-                switch (music_recieved.req){
+                switch (music_recieved.req)
+                {
                 case POST:
                     music_response = create_music(music_recieved);
                     printf("\n\tPOST recebido\n");
@@ -60,7 +69,7 @@ int main(int argc, const char** argv){
                     printf("\tDuração: %.2f\n", music_recieved.length);
                     printf("\tRequisição: %d\n", music_recieved.req);
                     break;
-                
+
                 case GET:
                     music_response = get_music(music_recieved.id);
                     printf("\n\tGET recebido\n");
@@ -71,19 +80,23 @@ int main(int argc, const char** argv){
                 write(accepted_socket, &music_response, sizeof(music));
                 write(fifo_fd, &music_db, sizeof(music_data_base));
                 exit(EXIT_SUCCESS);
-            }else{
+            }
+            else
+            {
                 perror("Leitura da requisição falhou.\n");
                 write(accepted_socket, "REQ_FAILED", 11);
                 exit(EXIT_FAILURE);
             }
         }
-        
     }
 
-    if(accepted_socket < 0){
+    if (accepted_socket < 0)
+    {
         perror("Requisição falhou.\n");
         return false;
     }
+
     shutdown(cs_server.socket, 2);
+
     return 0;
 }

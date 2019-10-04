@@ -3,35 +3,37 @@
 
 #include <stdbool.h>
 
-#define MAX 64
+#define MAX_VIDEO 64
 #define GET 0
 #define POST 1
 
 typedef int auto_id;
 typedef int req_type;
 
-typedef struct{
-    char name[MAX];
-    char director[MAX];
-    char gender[MAX];
+typedef struct
+{
+    char name[MAX_VIDEO];
+    char director[MAX_VIDEO];
+    char gender[MAX_VIDEO];
     float length;
     int id;
-}video;
+} video;
 
-typedef struct{
-    char name[MAX];
-    char director[MAX];
-    char gender[MAX];
+typedef struct
+{
+    char name[MAX_VIDEO];
+    char director[MAX_VIDEO];
+    char gender[MAX_VIDEO];
     float length;
     int id;
     req_type req;
-}video_req;
+} video_req;
 
-
-typedef struct{
-    video videos[MAX];
+typedef struct
+{
+    video videos[MAX_VIDEO];
     auto_id video_id;
-}video_data_base;
+} video_data_base;
 
 video_data_base video_db;
 

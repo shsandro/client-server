@@ -3,35 +3,37 @@
 
 #include <stdbool.h>
 
-#define MAX 64
+#define MAX_PHOTO 64
 #define GET 0
 #define POST 1
 
 typedef int auto_id;
 typedef int req_type;
 
-typedef struct{
-    char title[MAX];
-    char color_model[MAX];
+typedef struct
+{
+    char title[MAX_PHOTO];
+    char color_model[MAX_PHOTO];
     int width;
     int heigth;
     int id;
-}photo;
+} photo;
 
-typedef struct{
-    char title[MAX];
-    char color_model[MAX];
+typedef struct
+{
+    char title[MAX_PHOTO];
+    char color_model[MAX_PHOTO];
     int width;
     int heigth;
     int id;
     req_type req;
-}photo_req;
+} photo_req;
 
-
-typedef struct{
-    photo photos[MAX];
+typedef struct
+{
+    photo photos[MAX_PHOTO];
     auto_id photo_id;
-}photo_data_base;
+} photo_data_base;
 
 photo_data_base photo_db;
 
