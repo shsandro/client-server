@@ -239,5 +239,7 @@ int main(int argc, const char **argv)
         }
     }
 
+    shutdown(cs_client.socket, 2);
+
     return 0;
 }
