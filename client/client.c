@@ -7,10 +7,79 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct
+{
+    int server;
+    union {
+        video_req video_sent;
+        music_req music_sent;
+        photo_req photo_sent;
+    } object;
+
+} requisition;
+
+const unsigned int VIDEO_SIZE = sizeof(video_req);
+const unsigned int MUSIC_SIZE = sizeof(music_req);
+const unsigned int PHOTO_SIZE = sizeof(photo_req);
+
+bool send_message(client *cs_client, requisition *req)
+{
+    if ((cs_client->socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        perror("\n Socket creation error \n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (connect(cs_client->socket, (struct sockaddr *)&cs_client->socket_address, cs_client->sockaddr_lenght) < 0)
+    {
+        perror("Conexão falhou.\n");
+        printf("%s\n", cs_client->socket, (struct sockaddr *)&cs_client->socket_address, cs_client->sockaddr_lenght);
+        return 0;
+    }
+
+    switch (req->server)
+    {
+    case VIDEO_SERVER:
+        if (send(cs_client->socket, &req->object.video_sent, sizeof(video_req), 0) == -1)
+        {
+            perror("Error sending message");
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return true;
+}
+
+void build_video(video_req *video_sent)
+{
+    char c;
+    printf("\nNome:");
+    scanf("%c\n", &c);
+    fgets(video_sent->name, 32, stdin);
+    printf("\nDiretor:");
+    fgets(video_sent->director, 32, stdin);
+    printf("\nGênero: ");
+    fgets(video_sent->gender, 32, stdin);
+    printf("\nTamanho:");
+    scanf("%f", &video_sent->length);
+    video_sent->req = POST;
+}
+
+void get_id(video_req *video_sent)
+{
+    printf("\nInsira o ID do vídeo a ser buscado: ");
+    scanf("%d", &video_sent->id);
+    video_sent->req = GET;
+}
+
 int main(int argc, const char **argv)
 {
     client cs_client;
     int action;
+    requisition req;
 
     cs_client.init = init_client;
 
@@ -29,66 +98,29 @@ int main(int argc, const char **argv)
         {
         case VIDEO_SERVER:
         {
-            video_req video_sent;
+            req.server = VIDEO_SERVER;
+
             printf("\nEntre com a requisição:\n[0] GET\n[1] POST\n");
             scanf("%d", &action);
 
             switch (action)
             {
             case POST:
-                strcpy(video_sent.name, "Tropa de Elite");
-                strcpy(video_sent.director, "Não tenho ideia");
-                strcpy(video_sent.gender, "Policial");
-                video_sent.length = 2.0;
-                video_sent.req = POST;
+                build_video(&req.object.video_sent);
                 break;
 
             case GET:
-                video_sent.id = 0;
-                video_sent.req = GET;
+                get_id(&req.object.video_sent);
                 break;
             }
 
-            if ((cs_client.socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            {
-                perror("\n Socket creation error \n");
-                exit(EXIT_FAILURE);
-            }
-
-            if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address, cs_client.sockaddr_lenght) < 0)
-            {
-                perror("Conexão falhou.\n");
-                printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address, cs_client.sockaddr_lenght);
-                return 0;
-            }
-
-            if (send(cs_client.socket, &video_sent, sizeof(video_req), 0) == -1)
-            {
-                perror("Error sending message");
-            }
-            else
-            {
-                if (!action)
-                {
-                    printf("\n\tMessage sent\n");
-                    printf("\tID: %d\n", video_sent.id);
-                }
-                else
-                {
-                    printf("\n\tMessage sent\n");
-                    printf("\tNome: %s\n", video_sent.name);
-                    printf("\tDiretor: %s\n", video_sent.director);
-                    printf("\tGênero: %s\n", video_sent.gender);
-                    printf("\tDuração: %.2f\n", video_sent.length);
-                    printf("\tRequisição: %d\n", video_sent.req);
-                }
-            }
+            send_message(&cs_client, &req);
 
             video video_recivied;
 
             read(cs_client.socket, &video_recivied, sizeof(video));
 
-            printf("\n\tObjeto recebido da requisição %d\n", video_sent.req);
+            printf("\n\tObjeto recebido da requisição %d\n", req.object.video_sent.req);
             printf("\tNome        : %s\n", video_recivied.name);
             printf("\tDiretor     : %s\n", video_recivied.director);
             printf("\tGênero      : %s\n", video_recivied.gender);
