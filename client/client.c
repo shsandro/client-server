@@ -48,8 +48,14 @@ bool send_message(client *cs_client, requisition *req)
         break;
 
     case MUSIC_SERVER:
-        printf("\n enviando para a música");
         if (send(cs_client->socket, &req->object.music_sent, sizeof(music_req), 0) == -1)
+        {
+            perror("Error sending message");
+        }
+        break;
+
+    case PHOTO_SERVER:
+        if (send(cs_client->socket, &req->object.photo_sent, sizeof(photo_req), 0) == -1)
         {
             perror("Error sending message");
         }
@@ -91,6 +97,21 @@ void build_music(music_req *music_sent)
     music_sent->req = POST;
 }
 
+void build_photo(photo_req *photo_sent)
+{
+    char c;
+    printf("\nTítulo: ");
+    scanf("%c\n", &c);
+    fgets(photo_sent->title, 32, stdin);
+    printf("\nModelo de cor: ");
+    fgets(photo_sent->color_model, 32, stdin);
+    printf("\nWidth: ");
+    scanf("%d", &photo_sent->width);
+    printf("\nHeigth: ");
+    scanf("%d", &photo_sent->heigth);
+    photo_sent->req = POST;
+}
+
 void get_video_id(video_req *video_sent)
 {
     printf("\nInsira o ID do vídeo a ser buscado: ");
@@ -103,6 +124,13 @@ void get_music_id(music_req *music_sent)
     printf("\nInsira o ID da música a ser buscada: ");
     scanf("%d", &music_sent->id);
     music_sent->req = GET;
+}
+
+void get_photo_id(photo_req *photo_sent)
+{
+    printf("\nInsira o ID do vídeo a ser buscado: ");
+    scanf("%d", &photo_sent->id);
+    photo_sent->req = GET;
 }
 
 int main(int argc, const char **argv)
@@ -196,65 +224,29 @@ int main(int argc, const char **argv)
 
         case PHOTO_SERVER:
         {
-            photo_req photo_sent;
+            req.server = PHOTO_SERVER;
+
             printf("\nEntre com a requisição:\n[0] GET\n[1] POST\n");
             scanf("%d", &action);
 
             switch (action)
             {
             case POST:
-                strcpy(photo_sent.title, "A grande ficha");
-                strcpy(photo_sent.color_model, "RGB");
-                photo_sent.width = 1024;
-                photo_sent.heigth = 720;
-                photo_sent.req = POST;
+                build_photo(&req.object.photo_sent);
                 break;
 
             case GET:
-                photo_sent.id = 0;
-                photo_sent.req = GET;
+                get_photo_id(&req.object.photo_sent);
                 break;
             }
-            if ((cs_client.socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            {
-                perror("\n Socket creation error \n");
-                exit(EXIT_FAILURE);
-            }
 
-            if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address, cs_client.sockaddr_lenght) < 0)
-            {
-                perror("Conexão falhou.\n");
-                printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address, cs_client.sockaddr_lenght);
-                return 0;
-            }
-
-            if (send(cs_client.socket, &photo_sent, sizeof(photo_req), 0) == -1)
-            {
-                perror("Error sending message");
-            }
-            else
-            {
-                if (!action)
-                {
-                    printf("\n\tMessage sent\n");
-                    printf("\tID: %d\n", photo_sent.id);
-                }
-                else
-                {
-                    printf("\n\tMessage sent\n");
-                    printf("\tTítulo: %s\n", photo_sent.title);
-                    printf("\tModelo de cores: %s\n", photo_sent.color_model);
-                    printf("\tLargura: %d\n", photo_sent.width);
-                    printf("\tAltura: %d\n", photo_sent.heigth);
-                    printf("\tRequisição: %d\n", photo_sent.req);
-                }
-            }
+            send_message(&cs_client, &req);
 
             photo photo_recivied;
 
             read(cs_client.socket, &photo_recivied, sizeof(photo));
 
-            printf("\n\tObjeto recebido da requisição %d\n", photo_sent.req);
+            printf("\n\tObjeto recebido da requisição %d\n", req.object.photo_sent.req);
             printf("\tTítulo        : %s\n", photo_recivied.title);
             printf("\tModelo de cores      : %s\n", photo_recivied.color_model);
             printf("\tLargura     : %d\n", photo_recivied.width);
