@@ -36,6 +36,7 @@ bool send_message(client *cs_client, requisition *req)
         printf("%s\n", cs_client->socket, (struct sockaddr *)&cs_client->socket_address, cs_client->sockaddr_lenght);
         return 0;
     }
+    printf("\n %d", req->server);
 
     switch (req->server)
     {
@@ -46,7 +47,12 @@ bool send_message(client *cs_client, requisition *req)
         }
         break;
 
-    default:
+    case MUSIC_SERVER:
+        printf("\n enviando para a música");
+        if (send(cs_client->socket, &req->object.music_sent, sizeof(music_req), 0) == -1)
+        {
+            perror("Error sending message");
+        }
         break;
     }
 
@@ -56,10 +62,10 @@ bool send_message(client *cs_client, requisition *req)
 void build_video(video_req *video_sent)
 {
     char c;
-    printf("\nNome:");
+    printf("\nNome: ");
     scanf("%c\n", &c);
     fgets(video_sent->name, 32, stdin);
-    printf("\nDiretor:");
+    printf("\nDiretor: ");
     fgets(video_sent->director, 32, stdin);
     printf("\nGênero: ");
     fgets(video_sent->gender, 32, stdin);
@@ -68,18 +74,41 @@ void build_video(video_req *video_sent)
     video_sent->req = POST;
 }
 
-void get_id(video_req *video_sent)
+void build_music(music_req *music_sent)
+{
+    char c;
+    printf("\nNome: ");
+    scanf("%c\n", &c);
+    fgets(music_sent->name, 32, stdin);
+    printf("\nDiretor: ");
+    fgets(music_sent->singer, 32, stdin);
+    printf("\nGênero: ");
+    fgets(music_sent->gender, 32, stdin);
+    printf("\nAlbum: ");
+    fgets(music_sent->album, 32, stdin);
+    printf("\nTamanho:");
+    scanf("%f", &music_sent->length);
+    music_sent->req = POST;
+}
+
+void get_video_id(video_req *video_sent)
 {
     printf("\nInsira o ID do vídeo a ser buscado: ");
     scanf("%d", &video_sent->id);
     video_sent->req = GET;
 }
 
+void get_music_id(music_req *music_sent)
+{
+    printf("\nInsira o ID da música a ser buscada: ");
+    scanf("%d", &music_sent->id);
+    music_sent->req = GET;
+}
+
 int main(int argc, const char **argv)
 {
     client cs_client;
     int action;
-    requisition req;
 
     cs_client.init = init_client;
 
@@ -93,6 +122,8 @@ int main(int argc, const char **argv)
     {
         printf("\nEntre com o modelo para a requisição:\n[0] VIDEO\n[1] MUSIC\n[2] PHOTO\n");
         scanf("%d", &action);
+
+        requisition req;
 
         switch (action)
         {
@@ -110,7 +141,7 @@ int main(int argc, const char **argv)
                 break;
 
             case GET:
-                get_id(&req.object.video_sent);
+                get_video_id(&req.object.video_sent);
                 break;
             }
 
@@ -131,68 +162,29 @@ int main(int argc, const char **argv)
 
         case MUSIC_SERVER:
         {
-            music_req music_sent;
+            req.server = MUSIC_SERVER;
+
             printf("\nEntre com a requisição:\n[0] GET\n[1] POST\n");
             scanf("%d", &action);
 
             switch (action)
             {
             case POST:
-                strcpy(music_sent.name, "Like a Virgin");
-                strcpy(music_sent.singer, "Madonna");
-                strcpy(music_sent.gender, "Pop");
-                strcpy(music_sent.album, "Dark side of the moon");
-                music_sent.length = 3.0;
-                music_sent.req = POST;
+                build_music(&req.object.music_sent);
                 break;
 
             case GET:
-                music_sent.id = 0;
-                music_sent.req = GET;
+                get_music_id(&req.object.music_sent);
                 break;
             }
 
-            if ((cs_client.socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-            {
-                perror("\n Socket creation error \n");
-                exit(EXIT_FAILURE);
-            }
-
-            if (connect(cs_client.socket, (struct sockaddr *)&cs_client.socket_address, cs_client.sockaddr_lenght) < 0)
-            {
-                perror("Conexão falhou.\n");
-                printf("%s\n", cs_client.socket, (struct sockaddr *)&cs_client.socket_address, cs_client.sockaddr_lenght);
-                return 0;
-            }
-
-            if (send(cs_client.socket, &music_sent, sizeof(music_req), 0) == -1)
-            {
-                perror("Error sending message");
-            }
-            else
-            {
-                if (!action)
-                {
-                    printf("\n\tMessage sent\n");
-                    printf("\tID: %d\n", music_sent.id);
-                }
-                else
-                {
-                    printf("\n\tMessage sent\n");
-                    printf("\tNome: %s\n", music_sent.name);
-                    printf("\tCantor: %s\n", music_sent.singer);
-                    printf("\tGênero: %s\n", music_sent.gender);
-                    printf("\tAlbum: %s\n", music_sent.album);
-                    printf("\tDuração: %.2f\n", music_sent.length);
-                    printf("\tRequisição: %d\n", music_sent.req);
-                }
-            }
+            send_message(&cs_client, &req);
 
             music music_recivied;
 
             read(cs_client.socket, &music_recivied, sizeof(music));
 
-            printf("\n\tObjeto recebido da requisição %d\n", music_sent.req);
+            printf("\n\tObjeto recebido da requisição %d\n", req.object.music_sent.req);
             printf("\tNome        : %s\n", music_recivied.name);
             printf("\tSinger      : %s\n", music_recivied.singer);
             printf("\tGênero      : %s\n", music_recivied.gender);
