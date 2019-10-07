@@ -1,42 +1,23 @@
-#include "../cs_network.h"
-#include "../models/include/video.h"
-#include "../models/include/music.h"
-#include "../models/include/photo.h"
+#include "./include/client.h"
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct
-{
-    int server;
-    union {
-        video_req video_sent;
-        music_req music_sent;
-        photo_req photo_sent;
-    } object;
-
-} requisition;
-
-const unsigned int VIDEO_SIZE = sizeof(video_req);
-const unsigned int MUSIC_SIZE = sizeof(music_req);
-const unsigned int PHOTO_SIZE = sizeof(photo_req);
 
 bool send_message(client *cs_client, requisition *req)
 {
     if ((cs_client->socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         perror("\n Socket creation error \n");
-        exit(EXIT_FAILURE);
+        return false;
     }
 
     if (connect(cs_client->socket, (struct sockaddr *)&cs_client->socket_address, cs_client->sockaddr_lenght) < 0)
     {
         perror("Conexão falhou.\n");
         printf("%s\n", cs_client->socket, (struct sockaddr *)&cs_client->socket_address, cs_client->sockaddr_lenght);
-        return 0;
+        return false;
     }
-    printf("\n %d", req->server);
 
     switch (req->server)
     {
@@ -44,6 +25,7 @@ bool send_message(client *cs_client, requisition *req)
         if (send(cs_client->socket, &req->object.video_sent, sizeof(video_req), 0) == -1)
         {
             perror("Error sending message");
+            return false;
         }
         break;
 
@@ -51,6 +33,7 @@ bool send_message(client *cs_client, requisition *req)
         if (send(cs_client->socket, &req->object.music_sent, sizeof(music_req), 0) == -1)
         {
             perror("Error sending message");
+            return false;
         }
         break;
 
@@ -58,6 +41,7 @@ bool send_message(client *cs_client, requisition *req)
         if (send(cs_client->socket, &req->object.photo_sent, sizeof(photo_req), 0) == -1)
         {
             perror("Error sending message");
+            return false;
         }
         break;
     }
@@ -112,21 +96,21 @@ void build_photo(photo_req *photo_sent)
     photo_sent->req = POST;
 }
 
-void get_video_id(video_req *video_sent)
+void video_id(video_req *video_sent)
 {
     printf("\nInsira o ID do vídeo a ser buscado: ");
     scanf("%d", &video_sent->id);
     video_sent->req = GET;
 }
 
-void get_music_id(music_req *music_sent)
+void music_id(music_req *music_sent)
 {
     printf("\nInsira o ID da música a ser buscada: ");
     scanf("%d", &music_sent->id);
     music_sent->req = GET;
 }
 
-void get_photo_id(photo_req *photo_sent)
+void photo_id(photo_req *photo_sent)
 {
     printf("\nInsira o ID do vídeo a ser buscado: ");
     scanf("%d", &photo_sent->id);
@@ -169,11 +153,15 @@ int main(int argc, const char **argv)
                 break;
 
             case GET:
-                get_video_id(&req.object.video_sent);
+                video_id(&req.object.video_sent);
                 break;
             }
 
-            send_message(&cs_client, &req);
+            if (!send_message(&cs_client, &req))
+            {
+                perror("\nFalha no envio da mensagem.");
+                exit(EXIT_FAILURE);
+            }
 
             video video_recivied;
 
@@ -202,11 +190,15 @@ int main(int argc, const char **argv)
                 break;
 
             case GET:
-                get_music_id(&req.object.music_sent);
+                music_id(&req.object.music_sent);
                 break;
             }
 
-            send_message(&cs_client, &req);
+            if (!send_message(&cs_client, &req))
+            {
+                perror("\nFalha no envio da mensagem.");
+                exit(EXIT_FAILURE);
+            }
 
             music music_recivied;
 
@@ -236,11 +228,15 @@ int main(int argc, const char **argv)
                 break;
 
             case GET:
-                get_photo_id(&req.object.photo_sent);
+                photo_id(&req.object.photo_sent);
                 break;
             }
 
-            send_message(&cs_client, &req);
+            if (!send_message(&cs_client, &req))
+            {
+                perror("\nFalha no envio da mensagem.");
+                exit(EXIT_FAILURE);
+            }
 
             photo photo_recivied;
 
@@ -253,7 +249,6 @@ int main(int argc, const char **argv)
             printf("\tAltura     : %d\n", photo_recivied.heigth);
             printf("\tID          : %d\n", photo_recivied.id);
         }
-
         break;
         }
     }
