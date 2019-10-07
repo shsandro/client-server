@@ -7,8 +7,13 @@
 #include <pthread.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <semaphore.h>
 
 const unsigned int db_size = sizeof(photo_data_base);
+
+#define PSHARED 1
+
+sem_t semaphore;
 
 int main(int argc, const char **argv)
 {
@@ -17,6 +22,7 @@ int main(int argc, const char **argv)
     pid_t pid;
 
     init_photo_db();
+
     cs_server.init = init_server;
 
     if (!cs_server.init(&cs_server, "./hosts/hostfile_server3"))
@@ -24,18 +30,29 @@ int main(int argc, const char **argv)
         printf("Falha na criação do servidor.\n");
         exit(EXIT_FAILURE);
     }
+
     key_t key = ftok("shmfile", 65);
+
     if (key < 0)
     {
         perror("Erro no ftok");
         exit(EXIT_FAILURE);
     }
+
     int shmid = shmget(key, db_size, 0666 | IPC_CREAT);
+
     if (shmid < 0)
     {
         perror("Erro shmid");
         exit(EXIT_FAILURE);
     }
+
+    if (sem_init(&semaphore, PSHARED, 1) < 0)
+    {
+        perror("Erro ao inicializar o semáforo");
+        exit(EXIT_FAILURE);
+    }
+
     photo_data_base *shared_memory_photo = (photo_data_base *)shmat(shmid, NULL, 0);
 
     memcpy(shared_memory_photo, &photo_db, sizeof(photo_data_base)); //escrevo o do db pra memória compartilhada
@@ -53,7 +70,9 @@ int main(int argc, const char **argv)
             printf("Conexão estabelecida.\n");
             photo_req photo_recieved;
 
+            sem_wait(&semaphore);
             memcpy(&photo_db, shared_memory_photo, sizeof(photo_data_base)); //leio tudo que está na memoria compartilhada pro bd
+            sem_post(&semaphore);
 
             int v = read(accepted_socket, &photo_recieved, sizeof(photo_req));
             if (v >= 0)
@@ -85,7 +104,11 @@ int main(int argc, const char **argv)
                 write(accepted_socket, "REQ_FAILED", 11);
                 exit(EXIT_FAILURE);
             }
+
+            sem_wait(&semaphore);
             memcpy(shared_memory_photo, &photo_db, sizeof(photo_data_base)); //escrevo o do db pra memória compartilhada
+            sem_post(&semaphore);
+
             exit(EXIT_SUCCESS);
         }
     }

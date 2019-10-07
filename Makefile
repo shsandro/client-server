@@ -27,7 +27,7 @@ proxy:
 	$(CC) $(SRC_PROXY) $(SRC_NETWORK) $(SRC_VIDEO) $(SRC_MUSIC) $(SRC_PHOTO) -o proxy.out
 
 photo_server:
-	$(CC) $(SERVER_PHOTO) $(SRC_NETWORK) $(SRC_PHOTO) -o photo_server.out
+	$(CC) -pthread $(SERVER_PHOTO) $(SRC_NETWORK) $(SRC_PHOTO) -o photo_server.out
 
 video_server:
 	$(CC) $(SERVER_VIDEO) $(SRC_NETWORK) $(SRC_VIDEO) -o video_server.out
