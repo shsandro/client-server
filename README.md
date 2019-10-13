@@ -1,5 +1,7 @@
 # Client-Proxy-Servidor
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Resumo da Aplicação
 
 A aplicação é um conjunto de 4 programas, escritos em C, que simulam a comuniação entre um cliente e um servidor, por meio de proxy, em um contexto específico. A aplicação possuirá 3 servidores, cada um com seu propósito específico.
