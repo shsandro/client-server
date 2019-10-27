@@ -1,4 +1,4 @@
-#include "../cs_network.h"
+#include "../include/cs_network.h"
 #include "../models/include/photo.h"
 #include <stdlib.h>
 #include <string.h>
